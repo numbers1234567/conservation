@@ -258,6 +258,9 @@ function vecScalarProd(v, scalar) {
 /*
 Represents elastic collisions by directly modifying cow velocities.
 Inputs cows array. Elements' velocities are directly accessed and modified.
+
+NOTE: I am using a very patchworky solution for estimating new position.
+    I'm sure I can figure out some math to more cleanly model collisions.
 */
 function collisionForce(cows) {
     for (let i=0; i<cows.length; i++) {
@@ -280,6 +283,24 @@ function collisionForce(cows) {
             let x1 = cow1.r;
             let x2 = cow2.r;
 
+            // Replace with Actual math later
+            var times = 0;
+            cow1.dr_dt = vecScalarProd(cow1.dr_dt, -1);
+            cow2.dr_dt = vecScalarProd(cow2.dr_dt, -1);
+            while (true) { // Displace cows until they no longer touch
+                let dx = cow1.r.x-cow2.r.x;
+                let dy = cow1.r.y-cow2.r.y;
+                let r = Math.sqrt(dx*dx+dy*dy);
+                if (r < cow1.radius + cow2.radius) { // Very patchworky solution
+                    times++;
+                    cow1.update(dt/100);
+                    cow2.update(dt/100);
+                }
+                else break;
+            }
+            cow1.dr_dt = vecScalarProd(cow1.dr_dt, -1);
+            cow2.dr_dt = vecScalarProd(cow2.dr_dt, -1);
+
             // Elastic collision velocity was too annoying for me to enjoy deriving on my own. 
             // See below for derivation and equation.
             // https://en.wikipedia.org/wiki/Elastic_collision#Two-dimensional_collision_with_two_moving_objects
@@ -289,20 +310,12 @@ function collisionForce(cows) {
             let rVec = vecSub(x2, x1);
             let vVec = vecSub(v1p, v2p);
             if (vecDot(rVec, vVec) >= 0) continue;
-            
+
             cow1.dr_dt = v1p;
             cow2.dr_dt = v2p;
-            // Replace with Actual math later
-            while (true) { // Displace cows until they no longer touch
-                let dx = cow1.r.x-cow2.r.x;
-                let dy = cow1.r.y-cow2.r.y;
-                let r = Math.sqrt(dx*dx+dy*dy);
-                if (r < cow1.radius + cow2.radius) { // Very patchworky solution
-
-                    cow1.update(dt/100);
-                    cow2.update(dt/100);
-                }
-                else break;
+            for (let i=0;i<times;i++) { // Part of the patchworky solution
+                cow1.update(dt/100);
+                cow2.update(dt/100);
             }
             //cow1.update(dt/2);
             //cow2.update(dt/2);
