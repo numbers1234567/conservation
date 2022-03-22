@@ -1,0 +1,21 @@
+.input-prompt {
+    font-family: 'Lucida Sans';
+    font-weight: bold;
+    color: white;
+}
+
+.title {
+    color: white; 
+    font-family: 'Lucida Sans'; 
+    text-align: center;
+}
+
+canvas {
+    background-color: black; 
+    margin-top: 8px;
+    border: 2px solid white;
+}
+
+td {
+    margin-left: 50px;
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+
+    <body style="background-color: black;">
+        <!--Title-->
+        <div>
+            <h1 class="title">Spherical Cows in a Vacuum</h1>
+        </div>
+        <!--Top table buttons-->
+        <div>
+            <table>
+                <tr>
+                    <td>
+                        <p class="input-prompt" style="text-align: center;">Enter mass: </p>
+                        <input type="text" id="mass-input">
+                    </td>
+                    <td>
+                        <p class="input-prompt" style="text-align: center;">Enter radius: </p>
+                        <input type="text" id="radius-input">
+                    </td>
+                    <td>
+                        <p class="input-prompt" style="text-align: center;">Part of system?: </p>
+                        <div style="text-align: center;">
+                        <input type="checkbox" id="system-part">
+                        </div>
+                    </td>
+                    <td>
+                        <button id="start-button" onclick="startLoop()">Start</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!--Canvas where all interactions occur-->
+        <div>
+            <canvas id="main-canvas"></canvas>
+        </div>
+        <script src="main.js"></script>
+    </body>
+</html>
