@@ -122,6 +122,7 @@ function onCanvasClick(event) {
         
         let mass = parseFloat(massInput.value);
         let radius = parseFloat(radiusInput.value);
+        if (isNaN(mass) || isNaN(radius)) return null;
         let isSystemPart = isSystemInput.checked;
         
         cowArr.push(new Cow(x, y, 0, 0, radius, mass, isSystemPart));
