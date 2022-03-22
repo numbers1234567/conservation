@@ -292,8 +292,20 @@ function collisionForce(cows) {
             
             cow1.dr_dt = v1p;
             cow2.dr_dt = v2p;
-            cow1.update(dt);
-            cow2.update(dt);
+            // Replace with Actual math later
+            while (true) { // Displace cows until they no longer touch
+                let dx = cow1.r.x-cow2.r.x;
+                let dy = cow1.r.y-cow2.r.y;
+                let r = Math.sqrt(dx*dx+dy*dy);
+                if (r < cow1.radius + cow2.radius) { // Very patchworky solution
+
+                    cow1.update(dt/100);
+                    cow2.update(dt/100);
+                }
+                else break;
+            }
+            //cow1.update(dt/2);
+            //cow2.update(dt/2);
         }
     }
 }
