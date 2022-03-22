@@ -182,6 +182,7 @@ function calculateCenterOfMass(cows) {
     var totalMass = 0;
 
     for (let i=0; i<cows.length; i++) {
+        if (!cows[i].isSystem) continue;
         totalMass += cows[i].mass;
         com.x += cows[i].mass*cows[i].r.x;
         com.y += cows[i].mass*cows[i].r.y;
