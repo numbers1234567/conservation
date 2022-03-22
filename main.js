@@ -37,7 +37,7 @@ function Cow(x, y, dx_dt, dy_dt, radius, mass, isSystem) {
     */
     this.draw = function(canvas, offset_x, offset_y) { 
         canvas.beginPath();
-        canvas.arc(this.r.x, this.r.y, this.radius, 0, 2*Math.PI, false);
+        canvas.arc(this.r.x+offset_x, this.r.y+offset_y, this.radius, 0, 2*Math.PI, false);
         if (!this.isSystem) canvas.fillStyle = "#FFFFFF";
         else canvas.fillStyle = "#FF0000"
         canvas.fill();
@@ -193,15 +193,15 @@ function calculateCenterOfMass(cows) {
     return com;
 }
 
-function drawCenterOfMass(cows, canvas) {
+function drawCenterOfMass(cows, canvasCtx) {
     let com = calculateCenterOfMass(cows);
 
     centerOfMassPath.push(com);
 
-    canvas.beginPath();
-    canvas.arc(com.x, com.y, 3, 0, 2*Math.PI, false);
-    canvas.fillStyle = "#00FF00";
-    canvas.fill();
+    canvasCtx.beginPath();
+    canvasCtx.arc(canvasDefaultWidth/2, canvasDefaultWidth*canvas.height/canvas.width/2, 3, 0, 2*Math.PI, false);
+    canvasCtx.fillStyle = "#00FF00";
+    canvasCtx.fill();
 }
 
 /*
@@ -259,8 +259,9 @@ function vecScalarProd(v, scalar) {
 Represents elastic collisions by directly modifying cow velocities.
 Inputs cows array. Elements' velocities are directly accessed and modified.
 
-NOTE: I am using a very patchworky solution for estimating new position.
-    I'm sure I can figure out some math to more cleanly model collisions.
+First determines what the new velocities of two colliding cows should be,
+    then figures out which exact time the collision occurred. It uses this
+    to estimate a new position for two cows.
 */
 function collisionForce(cows) {
     for (let i=0; i<cows.length; i++) {
@@ -283,24 +284,6 @@ function collisionForce(cows) {
             let x1 = cow1.r;
             let x2 = cow2.r;
 
-            // Replace with Actual math later
-            var times = 0;
-            cow1.dr_dt = vecScalarProd(cow1.dr_dt, -1);
-            cow2.dr_dt = vecScalarProd(cow2.dr_dt, -1);
-            while (true) { // Displace cows until they no longer touch
-                let dx = cow1.r.x-cow2.r.x;
-                let dy = cow1.r.y-cow2.r.y;
-                let r = Math.sqrt(dx*dx+dy*dy);
-                if (r < cow1.radius + cow2.radius) { // Very patchworky solution
-                    times++;
-                    cow1.update(dt/100);
-                    cow2.update(dt/100);
-                }
-                else break;
-            }
-            cow1.dr_dt = vecScalarProd(cow1.dr_dt, -1);
-            cow2.dr_dt = vecScalarProd(cow2.dr_dt, -1);
-
             // Elastic collision velocity was too annoying for me to enjoy deriving on my own. 
             // See below for derivation and equation.
             // https://en.wikipedia.org/wiki/Elastic_collision#Two-dimensional_collision_with_two_moving_objects
@@ -311,14 +294,20 @@ function collisionForce(cows) {
             let vVec = vecSub(v1p, v2p);
             if (vecDot(rVec, vVec) >= 0) continue;
 
+            // Figure out how much to backtrack on the previous velocity, so the cows no longer touch
+            let k = vecSub(cow1.dr_dt, cow2.dr_dt);
+            let magK = Math.sqrt(k.x*k.x + k.y*k.y);
+            let backtrackT = -(cow1.radius + cow2.radius-r)/magK;
+            cow1.r = vecSum(cow1.r, vecScalarProd(cow1.dr_dt, backtrackT));
+            cow2.r = vecSum(cow2.r, vecScalarProd(cow2.dr_dt, backtrackT));
+
+            // New velocity
             cow1.dr_dt = v1p;
             cow2.dr_dt = v2p;
-            for (let i=0;i<times;i++) { // Part of the patchworky solution
-                cow1.update(dt/100);
-                cow2.update(dt/100);
-            }
-            //cow1.update(dt/2);
-            //cow2.update(dt/2);
+
+            // Make up for the time spent backtracked
+            cow1.r = vecSum(cow1.r, vecScalarProd(cow1.dr_dt, -backtrackT));
+            cow2.r = vecSum(cow2.r, vecScalarProd(cow2.dr_dt, -backtrackT));
         }
     }
 }
@@ -334,20 +323,24 @@ Updates the display and state based on the time elapsed
 function frameLoop() {
     requestAnimationFrame(frameLoop);
     cContext.clearRect(0, 0, canvas.width, canvas.height)
+
     applyGravitationalForce(cowArr);
     for (let i=0;i<cowArr.length;i++) {
         cowArr[i].update(dt);
     }
     collisionForce(cowArr);
-    for (let i=0;i<cowArr.length;i++) {
-        cowArr[i].draw(cContext);
-    }
+
     drawCenterOfMass(cowArr, cContext);
+    let offsetX = -centerOfMassPath[centerOfMassPath.length-1].x+canvasDefaultWidth/2;
+    let offsetY = -centerOfMassPath[centerOfMassPath.length-1].y+canvasDefaultWidth*canvas.height/canvas.width/2;
+    for (let i=0;i<cowArr.length;i++) {
+        cowArr[i].draw(cContext, offsetX, offsetY);
+    }
 
     for (let i=0;i<centerOfMassPath.length;i++) {
         let com = centerOfMassPath[i];
         cContext.beginPath();
-        cContext.arc(com.x, com.y, 1, 0, 2*Math.PI, false);
+        cContext.arc(com.x+offsetX, com.y+offsetY, 1, 0, 2*Math.PI, false);
         cContext.fillStyle = "#00FF00";
         cContext.fill();
     }
