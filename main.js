@@ -134,15 +134,22 @@ function calculateCenterOfMass(cows) {
     return com;
 }
 
-function drawCenterOfMass(cows, canvasCtx) {
+function drawCenterOfMassPath(cows, canvasCtx, offsetX, offsetY) {
     let com = calculateCenterOfMass(cows);
 
     centerOfMassPath.push(com);
 
     canvasCtx.beginPath();
-    canvasCtx.arc(canvasDefaultWidth/2, canvasDefaultWidth*canvas.height/canvas.width/2, 3, 0, 2*Math.PI, false);
+    canvasCtx.arc(com.x+offsetX, com.y+offsetY, 3, 0, 2*Math.PI, false);
     canvasCtx.fillStyle = "#00FF00";
     canvasCtx.fill();
+    for (let i=0;i<centerOfMassPath.length;i++) {
+        com = centerOfMassPath[i];
+        canvasCtx.beginPath();
+        canvasCtx.arc(com.x+offsetX, com.y+offsetY, 1, 0, 2*Math.PI, false);
+        canvasCtx.fillStyle = "#00FF00";
+        canvasCtx.fill();
+    }
 }
 
 
@@ -163,20 +170,15 @@ function frameLoop() {
         cowArr[i].update(dt);
     }
     collisionForce(cowArr);
+    
+    let com = calculateCenterOfMass(cowArr);
+    let drawOffsetX = -com.x+canvasDefaultWidth/2;
+    let drawOffsetY = -com.y+canvasDefaultWidth*canvas.height/canvas.width/2;
+    
+    drawCenterOfMassPath(cowArr, cContext, drawOffsetX, drawOffsetY);
 
-    drawCenterOfMass(cowArr, cContext);
-    let offsetX = -centerOfMassPath[centerOfMassPath.length-1].x+canvasDefaultWidth/2;
-    let offsetY = -centerOfMassPath[centerOfMassPath.length-1].y+canvasDefaultWidth*canvas.height/canvas.width/2;
     for (let i=0;i<cowArr.length;i++) {
-        cowArr[i].draw(cContext, offsetX, offsetY);
-    }
-
-    for (let i=0;i<centerOfMassPath.length;i++) {
-        let com = centerOfMassPath[i];
-        cContext.beginPath();
-        cContext.arc(com.x+offsetX, com.y+offsetY, 1, 0, 2*Math.PI, false);
-        cContext.fillStyle = "#00FF00";
-        cContext.fill();
+        cowArr[i].draw(cContext, drawOffsetX, drawOffsetY);
     }
 
     dt = Date.now()/1000 - lastTime;
