@@ -93,6 +93,7 @@ function onCanvasClick(event) {
     }
 }
 
+// Default click behavior
 canvas.addEventListener("click",
     onCanvasClick,
     false
@@ -134,6 +135,10 @@ function calculateCenterOfMass(cows) {
     return com;
 }
 
+/*
+Calculate the path taken by the center of mass and draw it.
+Returns {x: NaN, y:NaN} if there's no mass.
+*/
 function drawCenterOfMassPath(cows, canvasCtx, offsetX, offsetY) {
     let com = calculateCenterOfMass(cows);
 
@@ -162,25 +167,35 @@ Updates the display and state based on the time elapsed
     from la ultima loop.
 */
 function frameLoop() {
+    // Standard loop calls
     requestAnimationFrame(frameLoop);
     cContext.clearRect(0, 0, canvas.width, canvas.height)
 
+    // Apply physics
     applyGravitationalForce(cowArr);
     for (let i=0;i<cowArr.length;i++) {
         cowArr[i].update(dt);
     }
     collisionForce(cowArr);
     
+    // Calculate drawing offset from center of mass
     let com = calculateCenterOfMass(cowArr);
     let drawOffsetX = -com.x+canvasDefaultWidth/2;
     let drawOffsetY = -com.y+canvasDefaultWidth*canvas.height/canvas.width/2;
     
+    if (isNaN(com.x)) { // No draw offset. No center of mass.
+        drawOffsetX = 0;
+        drawOffsetY = 0;
+    }
+
+    // Draw loop
     drawCenterOfMassPath(cowArr, cContext, drawOffsetX, drawOffsetY);
 
     for (let i=0;i<cowArr.length;i++) {
         cowArr[i].draw(cContext, drawOffsetX, drawOffsetY);
     }
 
+    // Calculate next dt in seconds.
     dt = Date.now()/1000 - lastTime;
     lastTime = Date.now()/1000;
 }
