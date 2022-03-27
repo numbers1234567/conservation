@@ -148,7 +148,7 @@ function drawCenterOfMassPath(cows, canvasCtx, offsetX, offsetY) {
     canvasCtx.arc(com.x+offsetX, com.y+offsetY, 3, 0, 2*Math.PI, false);
     canvasCtx.fillStyle = "#00FF00";
     canvasCtx.fill();
-    for (let i=0;i<centerOfMassPath.length;i++) {
+    for (let i=0;i<centerOfMassPath.length;i+=60) {
         com = centerOfMassPath[i];
         canvasCtx.beginPath();
         canvasCtx.arc(com.x+offsetX, com.y+offsetY, 1, 0, 2*Math.PI, false);
