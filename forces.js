@@ -84,4 +84,48 @@ function collisionForce(cows) {
     }
 }
 
-export {applyGravitationalForce, collisionForce};
+/*
+Calculate center of mass of cows part of system
+*/
+function calculateCenterOfMass(cows) {
+    var com = {x : 0, y : 0};
+    var totalMass = 0;
+
+    for (let i=0; i<cows.length; i++) {
+        if (!cows[i].isSystem) continue;
+        totalMass += cows[i].mass;
+        com.x += cows[i].mass*cows[i].r.x;
+        com.y += cows[i].mass*cows[i].r.y;
+    }
+
+    com.x /= totalMass;
+    com.y /= totalMass;
+    return com;
+}
+
+/*
+Calculates total energy of every energy cows.
+Sum the pairwise potential energies and add the kinetic energies
+*/
+function calcEnergy(cows) {
+    var totalEnergy = 0;
+
+    for (let i=0;i<cows.length;i++) {
+        if (!cows[i].isSystem) continue;
+        // Gravitational potential energy
+        for (let j=i+1;j<cows.length;j++) {
+            let dx = cows[i].r.x-cows[j].r.x;
+            let dy = cows[i].r.y-cows[j].r.y;
+            
+            let distance = Math.sqrt(dx*dx+dy*dy);
+            totalEnergy += -2*G*cows[i].mass*cows[j].mass/distance
+        }
+        // Kinetic energy
+        let vx = cows[i].dr_dt.x;
+        let vy = cows[i].dr_dt.y;
+        totalEnergy += cows[i].mass*(vx*vx+vy*vy)/2;
+    }
+    return totalEnergy;
+}
+
+export {applyGravitationalForce, collisionForce, calculateCenterOfMass, calcEnergy};

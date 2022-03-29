@@ -1,5 +1,5 @@
 import { Cow } from "./cow.mjs";
-import {applyGravitationalForce, collisionForce} from "./forces.js";
+import {applyGravitationalForce, collisionForce, calculateCenterOfMass, calcEnergy} from "./forces.js";
 import {vecSub, vecScalarProd, vecSum, vecDot} from "./vectorOps.js";
 
 // Set up canvas
@@ -19,6 +19,7 @@ var massInput = document.getElementById("mass-input");
 var radiusInput = document.getElementById("radius-input");
 var isSystemInput = document.getElementById("system-part");
 
+var totalEnergyOutput = document.getElementById("energy-output")
 
 /*
  * * * * * * * * * * * *
@@ -119,22 +120,6 @@ function disableInteractivity() {
 
 let centerOfMassPath = [];
 
-function calculateCenterOfMass(cows) {
-    var com = {x : 0, y : 0};
-    var totalMass = 0;
-
-    for (let i=0; i<cows.length; i++) {
-        if (!cows[i].isSystem) continue;
-        totalMass += cows[i].mass;
-        com.x += cows[i].mass*cows[i].r.x;
-        com.y += cows[i].mass*cows[i].r.y;
-    }
-
-    com.x /= totalMass;
-    com.y /= totalMass;
-    return com;
-}
-
 /*
 Calculate the path taken by the center of mass and draw it.
 Returns {x: NaN, y:NaN} if there's no mass.
@@ -177,6 +162,10 @@ function frameLoop() {
         cowArr[i].update(dt);
     }
     collisionForce(cowArr);
+
+    // Calculate total energy
+    let totalEnergy = calcEnergy(cowArr);
+    totalEnergyOutput.textContent = totalEnergy.toString().substring(0, 8);
     
     // Calculate drawing offset from center of mass
     let com = calculateCenterOfMass(cowArr);
