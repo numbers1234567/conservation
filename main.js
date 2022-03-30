@@ -1,5 +1,5 @@
 import { Cow } from "./cow.mjs";
-import {applyGravitationalForce, collisionForce, calculateCenterOfMass, calcEnergy} from "./forces.js";
+import {applyGravitationalForce, collisionForce, calculateCenterOfMass, calcU, calcKE} from "./forces.js";
 import {vecSub, vecScalarProd, vecSum, vecDot} from "./vectorOps.js";
 
 // Set up canvas
@@ -20,6 +20,8 @@ var radiusInput = document.getElementById("radius-input");
 var isSystemInput = document.getElementById("system-part");
 
 var totalEnergyOutput = document.getElementById("energy-output")
+var uEnergyOutput = document.getElementById("u-output");
+var kEnergyOutput = document.getElementById("ke-output");
 
 /*
  * * * * * * * * * * * *
@@ -164,8 +166,12 @@ function frameLoop() {
     collisionForce(cowArr);
 
     // Calculate total energy
-    let totalEnergy = calcEnergy(cowArr);
+    let uEnergy = calcU(cowArr);
+    let kEnergy = calcKE(cowArr);
+    let totalEnergy = uEnergy+kEnergy;
     totalEnergyOutput.textContent = totalEnergy.toString().substring(0, 8);
+    uEnergyOutput.textContent = uEnergy.toString().substring(0, 8);
+    kEnergyOutput.textContent = kEnergy.toString().substring(0, 8);
     
     // Calculate drawing offset from center of mass
     let com = calculateCenterOfMass(cowArr);

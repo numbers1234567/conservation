@@ -11,9 +11,9 @@
         <div>
             <h1 class="title">Spherical Cows in a Vacuum</h1>
         </div>
-        <!--Top table buttons-->
         <div>
             <table>
+                <!--Top table buttons-->
                 <tr>
                     <td>
                         <p class="input-prompt" style="text-align: center;">Enter mass: </p>
@@ -32,8 +32,19 @@
                     <td>
                         <button id="start-button">Start</button>
                     </td>
-                    <td style="float: right; width: 100%; text-align: center;">
-                        <p class="input-prompt">Total Energy: </p>
+                </tr>
+                <!--Energy output-->
+                <tr>                    
+                    <td style="text-align: center;">
+                        <p class="input-prompt">Potential Energy: </p>
+                        <p class="input-prompt" id="u-output">N/A</p>
+                    </td>
+                    <td style="text-align: center;">
+                        <p class="input-prompt">Kinetic Energy: </p>
+                        <p class="input-prompt" id="ke-output">N/A</p>
+                    </td>
+                    <td style="text-align: center;">
+                        <p class="input-prompt">Total Mechanical Energy: </p>
                         <p class="input-prompt" id="energy-output">N/A</p>
                     </td>
                 </tr>
