@@ -22,6 +22,8 @@ var isSystemInput = document.getElementById("system-part");
 var totalEnergyOutput = document.getElementById("energy-output")
 var uEnergyOutput = document.getElementById("u-output");
 var kEnergyOutput = document.getElementById("ke-output");
+var du_dtOutput = document.getElementById("dU-output");
+var dKE_dtOutput = document.getElementById("dKE-output");
 
 /*
  * * * * * * * * * * * *
@@ -147,6 +149,8 @@ function drawCenterOfMassPath(cows, canvasCtx, offsetX, offsetY) {
 
 var lastTime = undefined;
 var dt = undefined;
+var lastKE=0;
+var lastU=0
 
 /*
 Runs a single loop of the main loop.
@@ -168,11 +172,17 @@ function frameLoop() {
     // Calculate total energy
     let uEnergy = calcU(cowArr);
     let kEnergy = calcKE(cowArr);
+    let du_dt = (uEnergy-lastU)/dt;
+    let dKE_dt = (kEnergy-lastKE)/dt;
     let totalEnergy = uEnergy+kEnergy;
     totalEnergyOutput.textContent = totalEnergy.toString().substring(0, 8);
     uEnergyOutput.textContent = uEnergy.toString().substring(0, 8);
     kEnergyOutput.textContent = kEnergy.toString().substring(0, 8);
+    dKE_dtOutput.textContent = dKE_dt.toString().substring(0, 8);
+    du_dtOutput.textContent = du_dt.toString().substring(0, 8);
     
+    lastKE = kEnergy;
+    lastU = uEnergy;
     // Calculate drawing offset from center of mass
     let com = calculateCenterOfMass(cowArr);
     let drawOffsetX = -com.x+canvasDefaultWidth/2;
@@ -191,7 +201,7 @@ function frameLoop() {
     }
 
     // Calculate next dt in seconds.
-    dt = Date.now()/1000 - lastTime;
+    dt = (Date.now()/1000 - lastTime);
     lastTime = Date.now()/1000;
 }
 

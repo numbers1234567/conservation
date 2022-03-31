@@ -112,7 +112,9 @@ function calcKE(cows) {
         if (!cows[i].isSystem) continue;
         let vx = cows[i].dr_dt.x;
         let vy = cows[i].dr_dt.y;
+         
         totalKE += cows[i].mass*(vx*vx+vy*vy)/2;
+        
     }
     return totalKE;
 }
@@ -130,7 +132,7 @@ function calcU(cows) {
             let dy = cows[i].r.y-cows[j].r.y;
             
             let distance = Math.sqrt(dx*dx+dy*dy);
-            totalU += -2*G*cows[i].mass*cows[j].mass/distance
+            totalU += -G*cows[i].mass*cows[j].mass/distance
         }
     }
     return totalU;
